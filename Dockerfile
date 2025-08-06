@@ -1,20 +1,12 @@
-# official jdk runtime as parent image
-FROM openjdk:11-jre-slim
-
-# working directory in the container
+# 1. Build Stage (Maven)
+FROM maven:3.9.4-eclipse-temurin-21 AS build
 WORKDIR /app
+COPY . .
+RUN mvn clean package -DskipTests
 
-# copy jar file to the container
-COPY target/deemo-0.0.1-SNAPSHOT.jar app.jar
-
-# Make port 8080 available (reachable from outside)
-EXPOSE 8080
-
-# Run the JAR file
+# 2. Runtime Stage (JDK only)
+FROM eclipse-temurin:21-jdk
+WORKDIR /app
+COPY --from=build /app/target/*.jar app.jar
+EXPOSE 8081
 ENTRYPOINT ["java", "-jar", "app.jar"]
-
-# Use Docker CLI to build the docker image, by running the following command
-# docker build -t enterprise-car-sales-app .
-
-# then run docker container
-# docker run -p 8080:8080 enterprise-car-sales-app

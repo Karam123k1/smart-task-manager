@@ -1,7 +1,8 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap } from 'rxjs';
-
+import { isPlatformBrowser } from '@angular/common';
+import { Inject, PLATFORM_ID } from '@angular/core';
 @Injectable({
   providedIn: 'root',
 })
@@ -10,12 +11,16 @@ export class AuthService {
   private loggedIn = new BehaviorSubject<boolean>(!!this.getToken());
   public isLoggedIn$ = this.loggedIn.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    @Inject(PLATFORM_ID) private platformId: Object
+  ) {}
 
   login(data: { username: string; password: string }): Observable<any> {
     return this.http.post('/api/auth/login', data).pipe(
       tap((res: any) => {
-        localStorage.setItem(this.tokenKey, res.token);
+        if (isPlatformBrowser(this.platformId))
+          localStorage.setItem(this.tokenKey, res.token);
         this.loggedIn.next(true);
       })
     );
@@ -26,12 +31,16 @@ export class AuthService {
   }
 
   logout() {
-    localStorage.removeItem(this.tokenKey);
+    if (isPlatformBrowser(this.platformId))
+      localStorage.removeItem(this.tokenKey);
     this.loggedIn.next(false);
   }
 
   getToken(): string | null {
-    return localStorage.getItem(this.tokenKey);
+    if (isPlatformBrowser(this.platformId))
+      return localStorage.getItem(this.tokenKey);
+
+    return null;
   }
 
   getUserRole(): string | null {
