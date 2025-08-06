@@ -2,10 +2,12 @@ import { Routes } from '@angular/router';
 import { LoginComponent } from './features/login/login';
 import { authGuard } from './shared/AuthGuard';
 import { RegisterComponent } from './features/register/register';
+import { DashboardComponent } from './dashboard/dashboard';
 
 export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'register', component: RegisterComponent },
+  { path: 'dashboard', component: DashboardComponent },
   {
     path: '',
     loadComponent: () =>
